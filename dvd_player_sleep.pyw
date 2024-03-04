@@ -3,6 +3,7 @@
 
 # Import
 
+from glob import glob
 from random import randint
 from time import sleep
 
@@ -10,130 +11,73 @@ import pygame
 
 pygame.init()
 
-# Variables
 
-surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-black = pygame.Color(0, 0, 0)
-screenWidth, screenHeight = pygame.display.get_surface().get_size()
+def image_variation() -> tuple:
+    images = glob("images/dvd*.png")
 
-image0 = pygame.image.load("./images/dvd0.png").convert_alpha()
-image1 = pygame.image.load("./images/dvd1.png").convert_alpha()
-image2 = pygame.image.load("./images/dvd2.png").convert_alpha()
-image3 = pygame.image.load("./images/dvd3.png").convert_alpha()
-image4 = pygame.image.load("./images/dvd4.png").convert_alpha()
-image5 = pygame.image.load("./images/dvd5.png").convert_alpha()
-image6 = pygame.image.load("./images/dvd6.png").convert_alpha()
+    ran = randint(0, len(images) - 1)
+    image = pygame.image.load(images[ran])
 
-img = image0
-imgWidth, imgHeight = img.get_width(), img.get_height()
-X = 0 or screenWidth / randint(2, 4)
-Y = 0 or screenHeight / randint(2, 4)
-
-backShiftX = False
-backShiftY = False
-
-pxShift = 2.5
-fps = 1 / 60
-
-ran0 = 0
-
-# Functions
+    return image
 
 
-def colorChange():
-    global ran0
+def main() -> None:
+    # Set up the screen
+    surface = pygame.display.set_mode((0, 0))
+    surface.fill((0, 0, 0))
 
-    global img
+    screenWidth, screenHeight = pygame.display.get_surface().get_size()
 
-    ran = randint(0, 6)
-    if ran == ran0:
-        if ran == 6:
-            ran = 0
+    # Set up the DVD logo
+    actual_img = image_variation()
+
+    imgWidth, imgHeight = actual_img.get_size()
+
+    # Set up the initial position and direction of the DVD logo
+    X, Y = 0, 0
+    backShiftX, backShiftY = False, False
+    pxShift = 2.5
+    fps = 1 / 60
+
+    while not pygame.key.get_pressed()[pygame.K_ESCAPE]:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
+        surface.blit(actual_img, (X, Y))
+        pygame.display.update()
+
+        if not backShiftX:
+            if X < screenWidth - imgWidth:
+                X += pxShift
+            if X == screenWidth - imgWidth:
+                backShiftX = True
+                actual_img = image_variation()
+
         else:
-            ran = ran + 1
+            if X <= screenWidth - imgWidth:
+                X -= pxShift
+            if X == 0:
+                backShiftX = False
+                actual_img = image_variation()
 
-    if ran == 0:
-        img = image0
-    if ran == 1:
-        img = image1
-    if ran == 2:
-        img = image2
-    if ran == 3:
-        img = image3
-    if ran == 4:
-        img = image4
-    if ran == 5:
-        img = image5
-    if ran == 6:
-        img = image6
+        if not backShiftY:
+            if Y < screenHeight - imgHeight:
+                Y += pxShift
+            if Y == screenHeight - imgHeight:
+                backShiftY = True
+                actual_img = image_variation()
 
-    ran0 = ran
+        else:
+            if Y <= screenHeight - imgHeight:
+                Y -= pxShift
+            if Y == 0:
+                backShiftY = False
+                actual_img = image_variation()
 
-
-def rainbow(t, n):
-    global img
-
-    if (
-        X == 0
-        and Y == 0
-        or X == screenWidth - imgWidth
-        and Y == 0
-        or X == 0
-        and Y == screenHeight - imgHeight
-        or X == screenWidth - imgWidth
-        and Y == screenHeight - imgHeight
-    ):
-        while n != 0:
-            n = n - 1
-
-            colorChange()
-
-            surface.fill(black)
-            surface.blit(img, (X, Y))
-            pygame.display.update()
-            sleep(t)
+        sleep(fps)
 
 
-# Display
-
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit(0)
-
-    surface.fill(black)
-    surface.blit(img, (X, Y))
-    rainbow(0.05, 21)
-
-    pygame.display.update()
-
-    if backShiftX is False:
-        if X < screenWidth - imgWidth:
-            X = X + pxShift
-        if X == screenWidth - imgWidth:
-            backShiftX = True
-            colorChange()
-
-    else:
-        if X <= screenWidth - imgWidth:
-            X = X - pxShift
-        if X == 0:
-            backShiftX = False
-            colorChange()
-
-    if backShiftY is False:
-        if Y < screenHeight - imgHeight:
-            Y = Y + pxShift
-        if Y == screenHeight - imgHeight:
-            backShiftY = True
-            colorChange()
-
-    else:
-        if Y <= screenHeight - imgHeight:
-            Y = Y - pxShift
-        if Y == 0:
-            backShiftY = False
-            colorChange()
-
-    sleep(fps)
+if __name__ == "__main__":
+    main()
