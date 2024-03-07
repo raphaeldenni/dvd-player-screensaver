@@ -4,7 +4,7 @@
 # ================================ #
 
 from glob import glob
-from random import randint
+from random import choice, randint
 from time import sleep
 
 import pygame
@@ -27,6 +27,13 @@ def image_variation(actual_img: pygame.Surface = None) -> pygame.Surface:
     return image
 
 
+def rainbow_variation(actual_img: pygame.Surface = None) -> pygame.Surface:
+    for i in range(randint(0, 255)):
+        image_variation(actual_img)
+
+        pygame.display.update()
+
+
 def main() -> None:
     pygame.init()
 
@@ -42,8 +49,9 @@ def main() -> None:
     imgWidth, imgHeight = actual_img.get_size()
 
     # Set up the initial position and direction of the DVD logo
-    X, Y = 0, 0
-    backShiftX, backShiftY = False, False
+    X, Y = choice([0, screenWidth - imgWidth]), choice([0, screenHeight - imgHeight])
+    backShiftX, backShiftY = False if X == 0 else True, False if Y == 0 else True
+
     pxShift = 2.5
     fps = 1 / 60
 
