@@ -1,7 +1,7 @@
-# DVD Player Sleep Screen in Python
-# By Raphaël Denni
-
-# Import
+# ================================ #
+# DVD Player Screensaver in Python #
+#         By Raphaël Denni         #
+# ================================ #
 
 from glob import glob
 from random import randint
@@ -9,21 +9,29 @@ from time import sleep
 
 import pygame
 
-pygame.init()
 
+def image_variation(actual_img: pygame.Surface = None) -> pygame.Surface:
+    """Return a random image from the DVD logo collection
 
-def image_variation() -> tuple:
+    Returns:
+        pygame.Surface: A random image from the DVD logo collection
+    """
     images = glob("images/dvd*.png")
 
-    ran = randint(0, len(images) - 1)
-    image = pygame.image.load(images[ran])
+    image = actual_img
+
+    while image == actual_img:
+        ran = randint(0, len(images) - 1)
+        image = pygame.image.load(images[ran])
 
     return image
 
 
 def main() -> None:
+    pygame.init()
+
     # Set up the screen
-    surface = pygame.display.set_mode((0, 0))
+    surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     surface.fill((0, 0, 0))
 
     screenWidth, screenHeight = pygame.display.get_surface().get_size()
@@ -48,33 +56,19 @@ def main() -> None:
         surface.blit(actual_img, (X, Y))
         pygame.display.update()
 
-        if not backShiftX:
-            if X < screenWidth - imgWidth:
-                X += pxShift
-            if X == screenWidth - imgWidth:
-                backShiftX = True
-                actual_img = image_variation()
+        if X <= screenWidth - imgWidth:
+            X += pxShift if not backShiftX else -pxShift
 
-        else:
-            if X <= screenWidth - imgWidth:
-                X -= pxShift
-            if X == 0:
-                backShiftX = False
-                actual_img = image_variation()
+        if X == 0 or X == screenWidth - imgWidth:
+            backShiftX = True if not backShiftX else False
+            actual_img = image_variation(actual_img)
 
-        if not backShiftY:
-            if Y < screenHeight - imgHeight:
-                Y += pxShift
-            if Y == screenHeight - imgHeight:
-                backShiftY = True
-                actual_img = image_variation()
+        if Y <= screenHeight - imgHeight:
+            Y += pxShift if not backShiftY else -pxShift
 
-        else:
-            if Y <= screenHeight - imgHeight:
-                Y -= pxShift
-            if Y == 0:
-                backShiftY = False
-                actual_img = image_variation()
+        if Y == 0 or Y == screenHeight - imgHeight:
+            backShiftY = True if not backShiftY else False
+            actual_img = image_variation(actual_img)
 
         sleep(fps)
 
