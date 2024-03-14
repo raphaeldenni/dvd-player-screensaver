@@ -10,7 +10,7 @@ from time import sleep
 import pygame
 
 
-def image_variation(actual_img: pygame.Surface = None) -> pygame.Surface:
+def image_variation(current_image: pygame.Surface = None) -> pygame.Surface:
     """Return a random image from the DVD logo collection
 
     Returns:
@@ -18,13 +18,13 @@ def image_variation(actual_img: pygame.Surface = None) -> pygame.Surface:
     """
     images = glob("images/dvd*.png")
 
-    image = actual_img
+    next_image = current_image
 
-    while image == actual_img:
-        ran = randint(0, len(images) - 1)
-        image = pygame.image.load(images[ran])
+    while next_image == current_image:
+        i = randint(0, len(images) - 1)
+        next_image = pygame.image.load(images[i])
 
-    return image
+    return next_image
 
 
 def rainbow_variation(actual_img: pygame.Surface = None) -> pygame.Surface:
@@ -38,22 +38,28 @@ def main() -> None:
     pygame.init()
 
     # Set up the screen
-    surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-    surface.fill((0, 0, 0))
-
-    screenWidth, screenHeight = pygame.display.get_surface().get_size()
+    screen_surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    screen_surface.fill((0, 0, 0))
+    screen_width, screen_height = pygame.display.get_surface().get_size()
 
     # Set up the DVD logo
-    actual_img = image_variation()
+    current_image = image_variation()
+    img_width, img_height = current_image.get_size()
 
-    imgWidth, imgHeight = actual_img.get_size()
+    # Set up area for the DVD logo
+    length_zone = screen_width - img_width
+    height_zone = screen_height - img_height
 
     # Set up the initial position and direction of the DVD logo
-    X, Y = choice([0, screenWidth - imgWidth]), choice([0, screenHeight - imgHeight])
-    backShiftX, backShiftY = False if X == 0 else True, False if Y == 0 else True
+    x_coor, y_coor = (
+        choice([0, length_zone]),
+        choice([0, height_zone]),
+    )
 
-    pxShift = 2.5
-    fps = 1 / 60
+    backShiftX, backShiftY = bool(x_coor), bool(y_coor)
+
+    pixel_move = 2.5
+    frame_rate = 1 / 60
 
     while not pygame.key.get_pressed()[pygame.K_ESCAPE]:
         for event in pygame.event.get():
@@ -61,24 +67,24 @@ def main() -> None:
                 pygame.quit()
                 exit()
 
-        surface.blit(actual_img, (X, Y))
+        screen_surface.blit(current_image, (x_coor, y_coor))
         pygame.display.update()
 
-        if X <= screenWidth - imgWidth:
-            X += pxShift if not backShiftX else -pxShift
+        if x_coor == 0 or x_coor == length_zone:
+            backShiftX = not backShiftX
+            current_image = image_variation(current_image)
 
-        if X == 0 or X == screenWidth - imgWidth:
-            backShiftX = True if not backShiftX else False
-            actual_img = image_variation(actual_img)
+        if y_coor == 0 or y_coor == height_zone:
+            backShiftY = not backShiftY
+            current_image = image_variation(current_image)
 
-        if Y <= screenHeight - imgHeight:
-            Y += pxShift if not backShiftY else -pxShift
+        if x_coor <= length_zone:
+            x_coor += pixel_move if not backShiftX else -pixel_move
 
-        if Y == 0 or Y == screenHeight - imgHeight:
-            backShiftY = True if not backShiftY else False
-            actual_img = image_variation(actual_img)
+        if y_coor <= height_zone:
+            y_coor += pixel_move if not backShiftY else -pixel_move
 
-        sleep(fps)
+        sleep(frame_rate)
 
 
 if __name__ == "__main__":
