@@ -20,6 +20,7 @@ def image_variation(current_image: pygame.Surface = None) -> pygame.Surface:
 
     next_image = current_image
 
+    # Make sure the next image is different from the current one
     while next_image == current_image:
         i = randint(0, len(images) - 1)
         next_image = pygame.image.load(images[i])
@@ -58,24 +59,31 @@ def main() -> None:
 
     backShiftX, backShiftY = bool(x_coor), bool(y_coor)
 
+    # Number of pixels to move the DVD logo each frame
     pixel_move = 2.5
+
+    # Frame rate
     frame_rate = 1 / 60
 
     while not pygame.key.get_pressed()[pygame.K_ESCAPE]:
+        # Check for quit event
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
 
+        # Update the screen
         screen_surface.blit(current_image, (x_coor, y_coor))
         pygame.display.update()
 
+        # Move the DVD logo in x and y directions
         if x_coor <= length_zone:
             x_coor += pixel_move if not backShiftX else -pixel_move
 
         if y_coor <= height_zone:
             y_coor += pixel_move if not backShiftY else -pixel_move
 
+        # Change the direction of the DVD logo if it hits the edge of the screen
         if x_coor == 0 or x_coor == length_zone:
             backShiftX = not backShiftX
             current_image = image_variation(current_image)
