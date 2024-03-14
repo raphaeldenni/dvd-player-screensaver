@@ -28,13 +28,6 @@ def image_variation(current_image: pygame.Surface = None) -> pygame.Surface:
     return next_image
 
 
-def rainbow_variation(actual_img: pygame.Surface = None) -> pygame.Surface:
-    for i in range(randint(0, 255)):
-        image_variation(actual_img)
-
-        pygame.display.update()
-
-
 def main() -> None:
     pygame.init()
 
@@ -91,6 +84,18 @@ def main() -> None:
         if y_coor == 0 or y_coor == height_zone:
             backShiftY = not backShiftY
             current_image = image_variation(current_image)
+
+        # Rainbow variation if the DVD logo hits the corner of the screen
+        if (x_coor == 0 or x_coor == length_zone) and (
+            y_coor == 0 or y_coor == height_zone
+        ):
+            for _ in range(20):
+                current_image = image_variation(current_image)
+
+                screen_surface.blit(current_image, (x_coor, y_coor))
+                pygame.display.update()
+
+                sleep(0.5)
 
         sleep(frame_rate)
 
