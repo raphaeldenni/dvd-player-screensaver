@@ -70,6 +70,12 @@ def main() -> None:
         screen_surface.blit(current_image, (x_coor, y_coor))
         pygame.display.update()
 
+        if x_coor <= length_zone:
+            x_coor += pixel_move if not backShiftX else -pixel_move
+
+        if y_coor <= height_zone:
+            y_coor += pixel_move if not backShiftY else -pixel_move
+
         if x_coor == 0 or x_coor == length_zone:
             backShiftX = not backShiftX
             current_image = image_variation(current_image)
@@ -77,12 +83,6 @@ def main() -> None:
         if y_coor == 0 or y_coor == height_zone:
             backShiftY = not backShiftY
             current_image = image_variation(current_image)
-
-        if x_coor <= length_zone:
-            x_coor += pixel_move if not backShiftX else -pixel_move
-
-        if y_coor <= height_zone:
-            y_coor += pixel_move if not backShiftY else -pixel_move
 
         sleep(frame_rate)
 
